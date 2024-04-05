@@ -1,6 +1,7 @@
 package org.sophanit.com.service.serviceImplement;
 
 import org.sophanit.com.model.Venue;
+import org.sophanit.com.model.request.RequestVenue;
 import org.sophanit.com.repository.VenueRepo;
 import org.sophanit.com.service.VenueService;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,16 @@ public class VenueServiceImp implements VenueService {
     @Override
     public Integer deleteVenueById(Integer id) {
         return venueRepo.deleteVenueById(id);
+    }
+
+    @Override
+    public Integer updateVenueById(RequestVenue requestVenue, Integer id) {
+        return venueRepo.updateVenueByID(requestVenue,id);
+    }
+
+    @Override
+    public Integer postNewVenue(RequestVenue requestVenue) {
+        return venueRepo.postNewVenue(requestVenue);
     }
 
 

@@ -48,14 +48,67 @@ public class VenueController {
     }
 
     @PostMapping("")
-    public ResponseEntity<ResponseApi<?>> postVenue(@RequestBody RequestVenue requestVenue){
-        return null;
+    public ResponseEntity<ResponseApi<Venue>> postVenue(@RequestBody RequestVenue requestVenue){
+        ResponseApi<Venue> responseApi = null;
+        if (!requestVenue.getVenueName().isEmpty() && !requestVenue.getVenueLocation().isEmpty()){
+            Integer storeId = venueService.postNewVenue(requestVenue);
+            if (storeId!=null){
+                responseApi = ResponseApi.<Venue>builder()
+                        .message("Post new venue successfully")
+                        .payload(venueService.getVenueById(storeId))
+                        .status(HttpStatus.OK.toString())
+                        .time(new Date(System.currentTimeMillis()))
+                        .build();
+                return ResponseEntity.ok(responseApi);
+            }else {
+                responseApi = ResponseApi.<Venue>builder()
+                        .message("Post not  success")
+                        .status(HttpStatus.BAD_REQUEST.toString())
+                        .time(new Date(System.currentTimeMillis()))
+                        .build();
+                return ResponseEntity.ok(responseApi);
+
+            }
+        }else {
+            responseApi = ResponseApi.<Venue>builder()
+                    .message("Some fields might be empty")
+                    .status(HttpStatus.BAD_REQUEST.toString())
+                    .time(new Date(System.currentTimeMillis()))
+                    .build();
+            return ResponseEntity.ok(responseApi);
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseApi<?>> updateVenueById(@PathVariable("id") Integer venue_id){
+    public ResponseEntity<ResponseApi<Venue>> updateVenueById(@PathVariable("id") Integer venue_id, @RequestBody RequestVenue requestVenue){
+        ResponseApi<Venue> responseApi = null;
+        if (!requestVenue.getVenueName().isEmpty() && !requestVenue.getVenueLocation().isEmpty()){
+            Integer storeId = venueService.updateVenueById(requestVenue,venue_id);
+            if (storeId!=null){
+                responseApi = ResponseApi.<Venue>builder()
+                        .message("Update Successfully")
+                        .payload(venueService.getVenueById(storeId))
+                        .status(HttpStatus.OK.toString())
+                        .time(new Date(System.currentTimeMillis()))
+                        .build();
+                return ResponseEntity.ok(responseApi);
+            }else {
+                responseApi = ResponseApi.<Venue>builder()
+                        .message("Failed to update")
+                        .status(HttpStatus.NOT_FOUND.toString())
+                        .time(new Date(System.currentTimeMillis()))
+                        .build();
+                return ResponseEntity.ok(responseApi);
+            }
+        }else {
+            responseApi = ResponseApi.<Venue>builder()
+                    .message("Some fields might be empty")
+                    .status(HttpStatus.BAD_REQUEST.toString())
+                    .time(new Date(System.currentTimeMillis()))
+                    .build();
+            return ResponseEntity.ok(responseApi);
+        }
 
-        return null;
     }
 
     @DeleteMapping("/{id}")
@@ -69,12 +122,14 @@ public class VenueController {
                     .time(new Date(System.currentTimeMillis()))
                     .build();
             return ResponseEntity.ok(responseApi);
+        }else {
+            responseApi = ResponseApi.builder()
+                    .message("Delete not Success")
+                    .status(HttpStatus.NOT_FOUND.toString())
+                    .time(new Date(System.currentTimeMillis()))
+                    .build();
+            return ResponseEntity.ok(responseApi);
         }
-        return ResponseEntity.ok(ResponseApi.builder()
-                .message("Delete no Success")
-                .status(HttpStatus.NOT_FOUND.toString())
-                .time(new Date(System.currentTimeMillis()))
-                .build());
     }
 
 }

@@ -2,6 +2,7 @@ package org.sophanit.com.repository;
 
 import org.apache.ibatis.annotations.*;
 import org.sophanit.com.model.Venue;
+import org.sophanit.com.model.request.RequestVenue;
 
 import java.util.List;
 
@@ -28,5 +29,15 @@ public interface VenueRepo {
 
     @Select("DELETE FROM venues WHERE venue_id = #{id} RETURNING venue_id")
     Integer deleteVenueById(Integer id);
+
+    @Select("UPDATE venues SET venue_name = #{req.venueName}," +
+            " location = #{req.venueLocation}" +
+            " WHERE venue_id = #{id} " +
+            " RETURNING venue_id")
+    Integer updateVenueByID(@Param("req") RequestVenue requestVenue,Integer id);
+
+
+    @Select("INSERT INTO venues VALUES (DEFAULT,#{req.venueName},#{req.venueLocation}) RETURNING venue_id")
+    Integer postNewVenue(@Param("req") RequestVenue requestVenue);
 
 }
