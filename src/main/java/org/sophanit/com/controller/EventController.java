@@ -1,6 +1,7 @@
 package org.sophanit.com.controller;
 
 
+import org.sophanit.com.exception.ApiException;
 import org.sophanit.com.model.Event;
 import org.sophanit.com.model.request.RequestEvent;
 import org.sophanit.com.model.response.ResponseApi;
@@ -37,19 +38,30 @@ public class EventController {
     @GetMapping("/{id}")
     public ResponseEntity<ResponseApi<Event>> getEventById(@PathVariable("id") Integer event_id){
         Event event = eventService.getEventById(event_id);
-        ResponseApi<Event> responseApi = ResponseApi.<Event>builder()
-                .message("Get event by ID successfully")
-                .payload(event)
-                .status(HttpStatus.OK.toString())
-                .time(new Date(System.currentTimeMillis()))
-                .build();
-        return ResponseEntity.ok(responseApi);
+        if (event!=null){
+            ResponseApi<Event> responseApi = ResponseApi.<Event>builder()
+                    .message("Get event by ID successfully")
+                    .payload(event)
+                    .status(HttpStatus.OK.toString())
+                    .time(new Date(System.currentTimeMillis()))
+                    .build();
+            return ResponseEntity.ok(responseApi);
+        }else
+            throw new ApiException("Not Found","Event ID "+ event_id + " was not found","events/"+event_id);
+
+
     }
 
 
     @PostMapping("")
     public ResponseEntity<ResponseApi<Event>> postEvent(@RequestBody RequestEvent requestEvent){
-
+        if (requestEvent.getEvent_name().isEmpty()
+                && requestEvent.getEvent_date().toString().isEmpty()
+                && requestEvent.getVenue_id()==null || requestEvent.getVenue_id()==0
+                || requestEvent.getEvent_name().contains("string")
+                || requestEvent.getEvent_date().toString().contains("string")
+        )
+            throw new ApiException("Empty Fields","Some fields might be empty","events");
         Integer storeId = eventService.postEvent(requestEvent);
         eventService.addAttendees(storeId,requestEvent.getAttendeeId());
         ResponseApi<Event> responseApi = ResponseApi.<Event>builder()
@@ -65,10 +77,10 @@ public class EventController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseApi<?>> deleteEventById(@PathVariable("id") Integer event_id){
-        Integer storeId = eventService.getEventById(event_id).getEvent_id();
+        Event event = eventService.getEventById(event_id);
         ResponseApi<?> responseApi = null;
-        if (storeId!=null){
-            Integer deleteId = eventService.deleteEventById(storeId);
+        if (event!=null){
+            Integer deleteId = eventService.deleteEventById(event_id);
             if (deleteId!=null){
                 responseApi = ResponseApi.builder()
                         .message("Deleted event successfully")
@@ -78,27 +90,28 @@ public class EventController {
 
                 return ResponseEntity.ok(responseApi);
             }
-        }else {
-            responseApi = ResponseApi.builder()
-                    .message("Deleted event not success")
-                    .status(HttpStatus.BAD_REQUEST.toString())
-                    .time(new Date(System.currentTimeMillis()))
-                    .build();
-            return ResponseEntity.ok(responseApi);
-        }
+        }else
+            throw new ApiException("Not found to delete","Event ID "+ event_id+ " was not found","events/"+event_id);
 
         return null;
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseApi<Event>> updateEventById(@PathVariable("id") Integer event_id,@RequestBody RequestEvent requestEvent){
+    public ResponseEntity<ResponseApi<Event>> updateEventById(@PathVariable("id") Integer event_id,@RequestBody RequestEvent requestEvent) {
         Event event = eventService.getEventById(event_id);
         ResponseApi<Event> responseApi = null;
-        if (event!=null){
+        if (event != null) {
+            if (requestEvent.getEvent_name().isEmpty()
+                    && requestEvent.getEvent_date().toString().isEmpty()
+                    && requestEvent.getVenue_id()==null || requestEvent.getVenue_id()==0
+                    || requestEvent.getEvent_name().contains("string")
+                    || requestEvent.getEvent_date().toString().contains("string")
+            )
+                throw new ApiException("Empty Fields","Some fields might be empty","events");
             eventService.deleteEventAttendees(event.getEvent_id());
-            eventService.updateEventById(event.getEvent_id(),requestEvent);
-            eventService.addAttendees(event.getEvent_id(),requestEvent.getAttendeeId());
+            eventService.updateEventById(event.getEvent_id(), requestEvent);
+            eventService.addAttendees(event.getEvent_id(), requestEvent.getAttendeeId());
 
             responseApi = ResponseApi.<Event>builder()
                     .message("Update Successfully")
@@ -107,13 +120,8 @@ public class EventController {
                     .time(new Date(System.currentTimeMillis()))
                     .build();
             return ResponseEntity.ok(responseApi);
-        }else {
-
-            return  null;
-
+        } else {
+            throw new ApiException("Event not found", "Event ID "+event_id+" was not found to update", "events/"+event_id);
         }
-
     }
-
-
 }
