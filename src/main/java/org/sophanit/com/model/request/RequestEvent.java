@@ -5,12 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+import java.util.List;
+
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class RequestEvent {
     private String event_name;
-    private String event_date;
+    private Date event_date;
     private Integer venue_id;
+    private List<Integer> attendeeId;
 }
