@@ -12,6 +12,7 @@ public class ApiException extends RuntimeException {
 
     private String detail;
     private String path;
+    // status code http
     public ApiException(String title,String detail,String path){
         super(title);
         this.detail = detail;
