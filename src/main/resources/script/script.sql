@@ -33,3 +33,13 @@ CREATE TABLE event_attendee(
 
 DELETE FROM venues WHERE venue_id = 6 RETURNING venue_id;
 
+SELECT * FROM events
+INNER JOIN attendees ea on events.event_id = ea.attendees_id;
+
+SELECT * FROM event_attendee ea
+INNER JOIN attendees a
+    ON ea.attendee_id=a.attendees_id;
+
+SELECT * from events
+inner join event_attendee ea on events.event_id = ea.event_id
+inner join attendees a on a.attendees_id = ea.attendee_id;
