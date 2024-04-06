@@ -1,5 +1,6 @@
 package org.sophanit.com.controller;
 
+import org.sophanit.com.exception.ApiException;
 import org.sophanit.com.model.Venue;
 import org.sophanit.com.model.request.RequestVenue;
 import org.sophanit.com.model.response.ResponseApi;
@@ -38,19 +39,26 @@ public class VenueController {
     public ResponseEntity<ResponseApi<?>> getVenueById(@PathVariable("id") Integer venue_id){
 
         Venue venue = venueService.getVenueById(venue_id);
-        ResponseApi<Venue> responseApi = ResponseApi.<Venue>builder()
-                .message("Get Venue By ID successfully")
-                .payload(venue)
-                .status(HttpStatus.FOUND.toString())
-                .time(new Date(System.currentTimeMillis()))
-                .build();
-        return ResponseEntity.ok(responseApi);
+        if (venue!=null){
+            ResponseApi<Venue> responseApi = ResponseApi.<Venue>builder()
+                    .message("Get Venue By ID successfully")
+                    .payload(venue)
+                    .status(HttpStatus.FOUND.toString())
+                    .time(new Date(System.currentTimeMillis()))
+                    .build();
+            return ResponseEntity.ok(responseApi);
+        }else
+            throw new ApiException("Not Found","Venue ID "+ venue_id + " was not found","venues/"+venue_id);
     }
 
     @PostMapping("")
     public ResponseEntity<ResponseApi<Venue>> postVenue(@RequestBody RequestVenue requestVenue){
+        if (requestVenue.getVenueName().isEmpty()
+                && requestVenue.getVenueLocation().isEmpty()
+                || requestVenue.getVenueName().contains("string") && requestVenue.getVenueLocation().contains("string")
+        )
+            throw new ApiException("Empty Fields","Some fields might be empty","venues");
         ResponseApi<Venue> responseApi = null;
-        if (!requestVenue.getVenueName().isEmpty() && !requestVenue.getVenueLocation().isEmpty()){
             Integer storeId = venueService.postNewVenue(requestVenue);
             if (storeId!=null){
                 responseApi = ResponseApi.<Venue>builder()
@@ -59,30 +67,26 @@ public class VenueController {
                         .status(HttpStatus.OK.toString())
                         .time(new Date(System.currentTimeMillis()))
                         .build();
-                return ResponseEntity.ok(responseApi);
             }else {
                 responseApi = ResponseApi.<Venue>builder()
                         .message("Post not  success")
                         .status(HttpStatus.BAD_REQUEST.toString())
                         .time(new Date(System.currentTimeMillis()))
                         .build();
-                return ResponseEntity.ok(responseApi);
-
             }
-        }else {
-            responseApi = ResponseApi.<Venue>builder()
-                    .message("Some fields might be empty")
-                    .status(HttpStatus.BAD_REQUEST.toString())
-                    .time(new Date(System.currentTimeMillis()))
-                    .build();
-            return ResponseEntity.ok(responseApi);
-        }
+        return ResponseEntity.ok(responseApi);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ResponseApi<Venue>> updateVenueById(@PathVariable("id") Integer venue_id, @RequestBody RequestVenue requestVenue){
         ResponseApi<Venue> responseApi = null;
-        if (!requestVenue.getVenueName().isEmpty() && !requestVenue.getVenueLocation().isEmpty()){
+        Integer findId = venueService.getVenueById(venue_id).getVenueId();
+        if (findId!=null){
+            if (requestVenue.getVenueName().isEmpty()
+                    && requestVenue.getVenueLocation().isEmpty()
+                    || requestVenue.getVenueName().contains("string") && requestVenue.getVenueLocation().contains("string")
+            )
+                throw new ApiException("Empty Fields","Some fields might be empty","venues/"+venue_id);
             Integer storeId = venueService.updateVenueById(requestVenue,venue_id);
             if (storeId!=null){
                 responseApi = ResponseApi.<Venue>builder()
@@ -100,36 +104,32 @@ public class VenueController {
                         .build();
                 return ResponseEntity.ok(responseApi);
             }
-        }else {
-            responseApi = ResponseApi.<Venue>builder()
-                    .message("Some fields might be empty")
-                    .status(HttpStatus.BAD_REQUEST.toString())
-                    .time(new Date(System.currentTimeMillis()))
-                    .build();
-            return ResponseEntity.ok(responseApi);
         }
-
+        throw new ApiException("Not found","Venue ID "+venue_id +" ws not found","venues/"+venue_id);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseApi<?>> deleteVenueById(@PathVariable("id") Integer venue_id){
-        Integer storeId = venueService.deleteVenueById(venue_id);
-        ResponseApi<?> responseApi = null;
-        if (storeId!=null){
-            responseApi = ResponseApi.builder()
-                    .message("Delete Successfully")
-                    .status(HttpStatus.OK.toString())
-                    .time(new Date(System.currentTimeMillis()))
-                    .build();
+        Integer findId = venueService.getVenueById(venue_id).getVenueId();
+        if (findId!=null){
+            Integer storeId = venueService.deleteVenueById(venue_id);
+            ResponseApi<?> responseApi = null;
+            if (storeId!=null){
+                responseApi = ResponseApi.builder()
+                        .message("Delete Successfully")
+                        .status(HttpStatus.OK.toString())
+                        .time(new Date(System.currentTimeMillis()))
+                        .build();
+            }else {
+                responseApi = ResponseApi.builder()
+                        .message("Delete not Success")
+                        .status(HttpStatus.NOT_FOUND.toString())
+                        .time(new Date(System.currentTimeMillis()))
+                        .build();
+            }
             return ResponseEntity.ok(responseApi);
-        }else {
-            responseApi = ResponseApi.builder()
-                    .message("Delete not Success")
-                    .status(HttpStatus.NOT_FOUND.toString())
-                    .time(new Date(System.currentTimeMillis()))
-                    .build();
-            return ResponseEntity.ok(responseApi);
-        }
+        }else
+            throw new ApiException("Not found","Venue ID "+ venue_id+" was not found to delete","venues/"+venue_id);
     }
 
 }
