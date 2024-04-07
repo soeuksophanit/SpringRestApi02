@@ -48,7 +48,7 @@ public class VenueController {
                     .build();
             return ResponseEntity.ok(responseApi);
         }else
-            throw new ApiException("Not Found","Venue ID "+ venue_id + " was not found","venues/"+venue_id);
+            throw new ApiException("Not Found","Venue ID "+ venue_id + " was not found","venues/"+venue_id,HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
@@ -57,7 +57,7 @@ public class VenueController {
                 && requestVenue.getVenueLocation().isEmpty()
                 || requestVenue.getVenueName().contains("string") && requestVenue.getVenueLocation().contains("string")
         )
-            throw new ApiException("Empty Fields","Some fields might be empty","venues");
+            throw new ApiException("Empty Fields","Some fields might be empty","venues",HttpStatus.BAD_REQUEST);
         ResponseApi<Venue> responseApi = null;
             Integer storeId = venueService.postNewVenue(requestVenue);
             if (storeId!=null){
@@ -86,7 +86,7 @@ public class VenueController {
                     && requestVenue.getVenueLocation().isEmpty()
                     || requestVenue.getVenueName().contains("string") && requestVenue.getVenueLocation().contains("string")
             )
-                throw new ApiException("Empty Fields","Some fields might be empty","venues/"+venue_id);
+                throw new ApiException("Empty Fields","Some fields might be empty","venues/"+venue_id,HttpStatus.BAD_REQUEST);
             Integer storeId = venueService.updateVenueById(requestVenue,venue_id);
             if (storeId!=null){
                 responseApi = ResponseApi.<Venue>builder()
@@ -105,7 +105,7 @@ public class VenueController {
                 return ResponseEntity.ok(responseApi);
             }
         }
-        throw new ApiException("Not found","Venue ID "+venue_id +" ws not found","venues/"+venue_id);
+        throw new ApiException("Not found","Venue ID "+venue_id +" ws not found","venues/"+venue_id,HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
@@ -129,7 +129,7 @@ public class VenueController {
             }
             return ResponseEntity.ok(responseApi);
         }else
-            throw new ApiException("Not found","Venue ID "+ venue_id+" was not found to delete","venues/"+venue_id);
+            throw new ApiException("Not found","Venue ID "+ venue_id+" was not found to delete","venues/"+venue_id,HttpStatus.NOT_FOUND);
     }
 
 }

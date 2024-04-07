@@ -17,7 +17,7 @@ public interface EventRepo {
                     @Result(property = "venueList",column = "venue_id",
                             one = @One(select = "org.sophanit.com.repository.VenueRepo.getVenueById")),
                     @Result(property = "attendeeList" ,column = "event_id",
-                            one = @One(select = "org.sophanit.com.repository.AttendeeRepo.getAttendee"))
+                            many = @Many(select = "org.sophanit.com.repository.AttendeeRepo.getAttendee"))
             }
     )
 

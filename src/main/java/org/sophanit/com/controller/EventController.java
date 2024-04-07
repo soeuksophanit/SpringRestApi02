@@ -47,7 +47,7 @@ public class EventController {
                     .build();
             return ResponseEntity.ok(responseApi);
         }else
-            throw new ApiException("Not Found","Event ID "+ event_id + " was not found","events/"+event_id);
+            throw new ApiException("Not Found","Event ID "+ event_id + " was not found","events/"+event_id,HttpStatus.NOT_FOUND);
 
 
     }
@@ -61,7 +61,7 @@ public class EventController {
                 || requestEvent.getEvent_name().contains("string")
                 || requestEvent.getEvent_date().toString().contains("string")
         )
-            throw new ApiException("Empty Fields","Some fields might be empty","events");
+            throw new ApiException("Empty Fields","Some fields might be empty","events",HttpStatus.BAD_REQUEST);
         Integer storeId = eventService.postEvent(requestEvent);
         eventService.addAttendees(storeId,requestEvent.getAttendeeId());
         ResponseApi<Event> responseApi = ResponseApi.<Event>builder()
@@ -91,7 +91,7 @@ public class EventController {
                 return ResponseEntity.ok(responseApi);
             }
         }else
-            throw new ApiException("Not found to delete","Event ID "+ event_id+ " was not found","events/"+event_id);
+            throw new ApiException("Not found to delete","Event ID "+ event_id+ " was not found","events/"+event_id,HttpStatus.NOT_FOUND);
 
         return null;
     }
@@ -108,7 +108,7 @@ public class EventController {
                     || requestEvent.getEvent_name().contains("string")
                     || requestEvent.getEvent_date().toString().contains("string")
             )
-                throw new ApiException("Empty Fields","Some fields might be empty","events");
+                throw new ApiException("Empty Fields","Some fields might be empty","events",HttpStatus.BAD_REQUEST);
             eventService.deleteEventAttendees(event.getEvent_id());
             eventService.updateEventById(event.getEvent_id(), requestEvent);
             eventService.addAttendees(event.getEvent_id(), requestEvent.getAttendeeId());
@@ -121,7 +121,7 @@ public class EventController {
                     .build();
             return ResponseEntity.ok(responseApi);
         } else {
-            throw new ApiException("Event not found", "Event ID "+event_id+" was not found to update", "events/"+event_id);
+            throw new ApiException("Event not found", "Event ID "+event_id+" was not found to update", "events/"+event_id,HttpStatus.NOT_FOUND);
         }
     }
 }

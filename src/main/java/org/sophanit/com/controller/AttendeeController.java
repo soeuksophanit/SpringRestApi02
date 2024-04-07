@@ -47,7 +47,7 @@ public class AttendeeController {
                     .build();
             return ResponseEntity.ok(responseApi);
         }else
-            throw new ApiException("Not Found","Attendee ID "+ attendee_id + " was not found","attendees/"+attendee_id);
+            throw new ApiException("Not Found","Attendee ID "+ attendee_id + " was not found","attendees/"+attendee_id,HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
@@ -56,7 +56,7 @@ public class AttendeeController {
                 && attendeeRequest.getEmail().isEmpty()
         || attendeeRequest.getAttendees_name().contains("string") && attendeeRequest.getEmail().contains("string")
         )
-            throw new ApiException("Empty Fields","Some fields might be empty","attendees");
+            throw new ApiException("Empty Fields","Some fields might be empty","attendees",HttpStatus.BAD_REQUEST);
         ResponseApi<Attendee> responseApi = null;
         Integer storeId  = attendeeService.postAttendee(attendeeRequest);
         if (storeId!=null){
@@ -84,7 +84,7 @@ public class AttendeeController {
                     .build();
             return ResponseEntity.ok(responseApi);
         }else {
-            throw new ApiException("Delete Not Found","Attendee ID "+ attendee_id + " was not found","attendees/"+attendee_id);
+            throw new ApiException("Delete Not Found","Attendee ID "+ attendee_id + " was not found","attendees/"+attendee_id,HttpStatus.NOT_FOUND);
         }
 
     }
@@ -97,7 +97,7 @@ public class AttendeeController {
                 && attendeeRequest.getEmail().isEmpty()
                 || attendeeRequest.getAttendees_name().contains("string") && attendeeRequest.getEmail().contains("string")
         )
-            throw new ApiException("Empty Fields","Some fields might be empty","attendees");
+            throw new ApiException("Empty Fields","Some fields might be empty","attendees",HttpStatus.BAD_REQUEST);
         ResponseApi<Attendee> responseApi = null;
         Attendee attendee = attendeeService.getAttendeeById(attendee_id);
         if (attendee!=null){
@@ -112,7 +112,7 @@ public class AttendeeController {
                     .build();
             return ResponseEntity.ok(responseApi);
         }else {
-            throw new ApiException("Not Found to Update","Attendee ID "+ attendee_id + " was not found","attendees/"+attendee_id);
+            throw new ApiException("Not Found to Update","Attendee ID "+ attendee_id + " was not found","attendees/"+attendee_id,HttpStatus.NOT_FOUND);
         }
     }
 }
