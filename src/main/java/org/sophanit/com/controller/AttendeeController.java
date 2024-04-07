@@ -55,6 +55,7 @@ public class AttendeeController {
         if (attendeeRequest.getAttendees_name().isEmpty()
                 && attendeeRequest.getEmail().isEmpty()
         || attendeeRequest.getAttendees_name().contains("string") && attendeeRequest.getEmail().contains("string")
+                || !attendeeRequest.getEmail().contains("@gmail.com")
         )
             throw new ApiException("Empty Fields","Some fields might be empty","attendees",HttpStatus.BAD_REQUEST);
         ResponseApi<Attendee> responseApi = null;
@@ -96,6 +97,7 @@ public class AttendeeController {
         if (attendeeRequest.getAttendees_name().isEmpty()
                 && attendeeRequest.getEmail().isEmpty()
                 || attendeeRequest.getAttendees_name().contains("string") && attendeeRequest.getEmail().contains("string")
+                || !attendeeRequest.getEmail().contains("@gmail.com")
         )
             throw new ApiException("Empty Fields","Some fields might be empty","attendees",HttpStatus.BAD_REQUEST);
         ResponseApi<Attendee> responseApi = null;

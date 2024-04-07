@@ -2,10 +2,13 @@ package org.sophanit.com.controller;
 
 
 import org.sophanit.com.exception.ApiException;
+import org.sophanit.com.model.Attendee;
 import org.sophanit.com.model.Event;
 import org.sophanit.com.model.request.RequestEvent;
 import org.sophanit.com.model.response.ResponseApi;
+import org.sophanit.com.service.AttendeeService;
 import org.sophanit.com.service.EventService;
+import org.sophanit.com.service.VenueService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +20,13 @@ import java.util.List;
 @RequestMapping("/api/v1/events")
 public class EventController {
     private final EventService eventService;
+    private final AttendeeService attendeeService;
+    private final VenueService venueService;
 
-    public EventController(EventService eventService) {
+    public EventController(EventService eventService, AttendeeService attendeeService, VenueService venueService) {
         this.eventService = eventService;
+        this.attendeeService = attendeeService;
+        this.venueService = venueService;
     }
 
 
@@ -62,6 +69,14 @@ public class EventController {
                 || requestEvent.getEvent_date().toString().contains("string")
         )
             throw new ApiException("Empty Fields","Some fields might be empty","events",HttpStatus.BAD_REQUEST);
+        if (venueService.getVenueById(requestEvent.getVenue_id())==null)
+            throw new ApiException("Venue not found","We don't have Venue ID "+requestEvent.getVenue_id(),"events",HttpStatus.NOT_FOUND);
+        for (Integer attendee_id : requestEvent.getAttendeeId()){
+            Attendee attendee = attendeeService.getAttendeeById(attendee_id);
+            if (attendee==null){
+                throw new ApiException("Attendee not found","We don't have Attendee ID "+attendee_id,"events",HttpStatus.NOT_FOUND);
+            }
+        }
         Integer storeId = eventService.postEvent(requestEvent);
         eventService.addAttendees(storeId,requestEvent.getAttendeeId());
         ResponseApi<Event> responseApi = ResponseApi.<Event>builder()
@@ -109,6 +124,14 @@ public class EventController {
                     || requestEvent.getEvent_date().toString().contains("string")
             )
                 throw new ApiException("Empty Fields","Some fields might be empty","events",HttpStatus.BAD_REQUEST);
+            if (venueService.getVenueById(requestEvent.getVenue_id())==null)
+                throw new ApiException("Venue not found","We don't have Venue ID "+requestEvent.getVenue_id(),"events",HttpStatus.NOT_FOUND);
+            for (Integer attendee_id : requestEvent.getAttendeeId()){
+                Attendee attendee = attendeeService.getAttendeeById(attendee_id);
+                if (attendee==null){
+                    throw new ApiException("Attendee not found","We don't have Attendee ID "+attendee_id,"events",HttpStatus.NOT_FOUND);
+                }
+            }
             eventService.deleteEventAttendees(event.getEvent_id());
             eventService.updateEventById(event.getEvent_id(), requestEvent);
             eventService.addAttendees(event.getEvent_id(), requestEvent.getAttendeeId());
